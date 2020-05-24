@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>取交集</title>
+  <title>数据去重</title>
   <style>
     #content {
       position: absolute;
@@ -24,7 +24,7 @@
 </head>
 <body>
   <div>
-    <a href="./de-weighting.html">数据去重</a>
+    <a href="./index.html">数据去重</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
   <a href="javascript:selectFile()">加载excel文件</a>
@@ -34,7 +34,7 @@
     <span class="file-name"></span>
   </p>
   <p id="res">
-    <span>重复数据有：</span>
+    <span>去重后数据有：</span>
     <span class="num"></span>
   </p>
   <!-- <div id="result" contenteditable></div> -->
@@ -97,7 +97,7 @@
     // var csv = table2csv($('#result table')[0]);
     var sheet = csv2sheet(resultData);
     var blob = sheet2blob(sheet);
-    openDownloadDialog(blob, 'intersections.xlsx');
+    openDownloadDialog(blob, 'de-weighting.xlsx');
   }
 
     // 将csv转换成表格
@@ -202,8 +202,14 @@
     aLink.dispatchEvent(event);
   }
 
-  function intersection (dataA, dataB) {
-    var c = Array.from(new Set(dataA)).filter(v => Array.from(new Set(dataB)).includes(v))
+  function intersection (data) {
+    var arr = [];
+    for(var i of data) {
+      if(i) {
+        arr.push(i);
+      }
+    }
+    var c = Array.from(new Set(arr))
     $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
     var str = "";
     for (var i = 0; i < c.length; i++) {
