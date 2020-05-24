@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>数据去重</title>
+  <title>基因截取</title>
   <style>
     #content {
       position: absolute;
@@ -25,6 +25,7 @@
 <body>
   <div>
     <a href="./index.html">点击前往数据取交集页面</a>
+    <a href="./de-weighting.html">点击前往数据去重页面</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
   <a href="javascript:selectFile()">加载excel文件</a>
@@ -34,7 +35,7 @@
     <span class="file-name"></span>
   </p>
   <p id="res">
-    <span>去重后数据有：</span>
+    <span>截取后的数据有：</span>
     <span class="num"></span>
   </p>
   <!-- <div id="result" contenteditable></div> -->
@@ -88,14 +89,15 @@
     var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
     var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
     var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
-    resultData = intersection(csv1);
+    resultData = intersection(csv1)
+    // document.getElementById('result').innerHTML = csv2table(res);
   }
 
   function exportExcel() {
     // var csv = table2csv($('#result table')[0]);
     var sheet = csv2sheet(resultData);
     var blob = sheet2blob(sheet);
-    openDownloadDialog(blob, 'de-weighting.xlsx');
+    openDownloadDialog(blob, 'intersections.xlsx');
   }
 
     // 将csv转换成表格
@@ -200,14 +202,18 @@
     aLink.dispatchEvent(event);
   }
 
-  function intersection (data) {
+  function intersection (dataA) {
     var arr = [];
-    for(var i of data) {
-      if(i) {
-        arr.push(i);
+    var c = [];
+    for(let i of dataA) {
+      if(i && i.indexOf("_") > -1) {
+        arr.push(i.split("_"));
       }
     }
-    var c = Array.from(new Set(arr))
+    for(let m of arr) {
+      c.push(m[0].replace(/\"/g,""));
+    }
+    
     $("#res .num").text((c.length) + "条，可点击上方导出按钮⬆下载结果");
     var str = "";
     for (var i = 0; i < c.length; i++) {
@@ -215,13 +221,5 @@
     }
     return str;
   }
-  // 先去重，再过滤
-  // var c = Array.from(new Set(b)).filter(v => Array.from(new Set(a)).includes(v))
-  // console.log(c)
-  // var str = "";
-  // for (var i = 0; i < c.length; i++) {
-  //   str += "<div>" + c[i] + "</div>";
-  // }
-  // document.body.innerHTML = str
 </script>
 </html>
