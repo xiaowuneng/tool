@@ -1,0 +1,35 @@
+#content {
+  position: absolute;
+  width: 450px;
+  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.img-wrap {
+  position: relative;
+}
+.cola {
+  position: absolute;
+  top: -17px;
+  right: 62px;
+}
+
+.btn-wrap {
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.btn-wrap .btn{
+  float: left;
+  padding: 10px 20px;
+  margin-right: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.btn.active{
+  background: #4585F5;
+  color: #fff;
+}

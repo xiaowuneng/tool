@@ -3,29 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>取交集</title>
-  <style>
-    #content {
-      position: absolute;
-      width: 450px;
-      height: 250px;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .img-wrap {
-      position: relative;
-    }
-    .cola {
-      position: absolute;
-      top: -17px;
-      right: 62px;
-    }
-  </style>
+  <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-  <div>
-    <a href="./de-weighting.html">点击前往数据去重页面</a>
-    <a href="./intercept.html">点击基因截取页面</a>
+  <div class="btn-wrap">
+    <a href="./index.html" class="btn active">数据取交集</a>
+    <a href="./de-weighting.html" class="btn">数据去重</a>
+    <a href="./intercept.html" class="btn">基因截取</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
   <a href="javascript:selectFile()">加载excel文件</a>
