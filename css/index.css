@@ -1,6 +1,6 @@
 #content {
   position: absolute;
-  width: 450px;
+  width: 380px;
   height: 250px;
   top: 50%;
   left: 50%;
@@ -9,10 +9,20 @@
 .img-wrap {
   position: relative;
 }
+
+.msg {
+  text-align: center;
+}
 .cola {
   position: absolute;
   top: -17px;
   right: 62px;
+}
+
+.cat {
+  position: absolute;
+  top: 16px;
+  right: 26px;
 }
 
 .btn-wrap {
@@ -20,7 +30,7 @@
   margin-bottom: 20px;
 }
 
-.btn-wrap .btn{
+.btn-wrap .btn {
   float: left;
   padding: 10px 20px;
   margin-right: 20px;
@@ -29,7 +39,8 @@
   text-decoration: none;
 }
 
-.btn.active{
+.btn.active,
+.btn:hover {
   background: #4585F5;
   color: #fff;
 }
