@@ -1,6 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  padding: 20px;
+  box-sizing: border-box;
+  background: linear-gradient(to right, #D7E6F2, #fff)
+}
+
 #content {
   position: absolute;
-  width: 380px;
+  width: 340px;
   height: 250px;
   top: 50%;
   left: 50%;
@@ -8,12 +24,14 @@
 }
 .img-wrap {
   position: relative;
+  top: 10px;
 }
 
 .msg {
   text-align: center;
 }
-.cola {
+
+/* .cola {
   position: absolute;
   top: -17px;
   right: 62px;
@@ -23,7 +41,7 @@
   position: absolute;
   top: 16px;
   right: 26px;
-}
+} */
 
 .btn-wrap {
   overflow: hidden;
