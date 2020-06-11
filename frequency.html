@@ -188,7 +188,6 @@
   }
 
   function frequency (dataA) {
-    // $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
     var tempObj = {};
     dataA.forEach(function (value, index) {
       if(value && value !== ",") {
@@ -210,6 +209,7 @@
     arr.forEach(function (value, index) {
       arrRes.push(value[0] + value[1]);
     })
+    $("#res .num").text("已完成，可点击上方导出按钮⬆下载结果");
     return arrRes.slice(0, 301);
   }
 </script>
