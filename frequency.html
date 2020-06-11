@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>数据去重</title>
+  <title>频率排序</title>
   <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
   <div class="btn-wrap">
     <a href="./index.html" class="btn">数据取交集</a>
-    <a href="./de-weighting.html" class="btn active">数据去重</a>
+    <a href="./de-weighting.html" class="btn">数据去重</a>
     <a href="./intercept.html" class="btn">基因截取</a>
-    <a href="./frequency.html" class="btn">频率排序</a>
+    <a href="./frequency.html" class="btn active">频率排序</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
   <a href="javascript:selectFile()">加载excel文件</a>
@@ -20,7 +20,7 @@
     <span class="file-name"></span>
   </p>
   <p id="res">
-    <span>去重后数据有：</span>
+    <span>按出现频率截取数据有：</span>
     <span class="num"></span>
   </p>
   <!-- <div id="result" contenteditable></div> -->
@@ -36,8 +36,6 @@
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./js/xlsx.full.min.js"></script>
-<!-- <script src="./Gene2.js"></script> -->
-<!-- <script src="./mutation_genes2.js"></script> -->
 <script>
   var resultData = "";
   function selectFile() {
@@ -74,16 +72,16 @@
   function readWorkbook(workbook) {
     var sheetNames = workbook.SheetNames; // 工作表名称集合
     var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
-    var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
     var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
-    resultData = intersection(csv1);
+    resultData = frequency(csv1)
+    // document.getElementById('result').innerHTML = csv2table(res);
   }
 
   function exportExcel() {
     // var csv = table2csv($('#result table')[0]);
     var sheet = csv2sheet(resultData);
     var blob = sheet2blob(sheet);
-    openDownloadDialog(blob, 'de-weighting.xlsx');
+    openDownloadDialog(blob, 'frequency.xlsx');
   }
 
     // 将csv转换成表格
@@ -128,7 +126,7 @@
   // csv转sheet对象
   function csv2sheet(csv) {
     var sheet = {}; // 将要生成的sheet
-    csv = csv.split('\n');
+    // csv = csv.split('\n');
     csv.forEach(function(row, i) {
       row = row.split(',');
       if(i == 0) sheet['!ref'] = 'A1:'+String.fromCharCode(65+row.length-1)+(csv.length-1);
@@ -188,28 +186,30 @@
     aLink.dispatchEvent(event);
   }
 
-  function intersection (data) {
-    var arr = [];
-    for(var i of data) {
-      if(i) {
-        arr.push(i);
+  function frequency (dataA) {
+    // $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
+    var tempObj = {};
+    dataA.forEach(function (value, index) {
+      if(value && value !== ",") {
+        if(tempObj[value]) {
+          tempObj[value]++;
+        } else {
+          tempObj[value] = 1;
+        }
       }
+    });
+    var arr = [];
+    var arrRes = [];
+    for (var key in tempObj) {
+      arr.push([key, tempObj[key]]);
     }
-    var c = Array.from(new Set(arr))
-    $("#res .num").text((c.length) + "条，可点击上方导出按钮⬆下载结果");
-    var str = "";
-    for (var i = 0; i < c.length; i++) {
-      str += c[i] + "\n";
-    }
-    return str;
+    arr.sort(function (a, b) {
+      return b[1] - a[1];
+    })
+    arr.forEach(function (value, index) {
+      arrRes.push(value[0] + value[1]);
+    })
+    return arrRes.slice(0, 300);
   }
-  // 先去重，再过滤
-  // var c = Array.from(new Set(b)).filter(v => Array.from(new Set(a)).includes(v))
-  // console.log(c)
-  // var str = "";
-  // for (var i = 0; i < c.length; i++) {
-  //   str += "<div>" + c[i] + "</div>";
-  // }
-  // document.body.innerHTML = str
 </script>
 </html>
