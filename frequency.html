@@ -188,6 +188,7 @@
   }
 
   function frequency (dataA) {
+    $("#res .num").text("计算中，稍安勿躁...");
     var tempObj = {};
     dataA.forEach(function (value, index) {
       if(value && value !== ",") {
