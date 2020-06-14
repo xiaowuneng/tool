@@ -207,11 +207,18 @@
     arr.sort(function (a, b) {
       return b[1] - a[1];
     })
-    arr.forEach(function (value, index) {
+    var indexLast = 0; // 第三百项的出现频率最后出现的 索引
+    for(var i = arr.length -1; i >= 0; i--) {
+      if(arr[i][1] === arr[299][1]) {
+        indexLast = i;
+        break;
+      }
+    }
+    arr.slice(0, indexLast + 1).forEach(function (value, index) {
       arrRes.push(value[0] + value[1]);
     })
     $("#res .num").text("已完成，可点击上方导出按钮⬆下载结果");
-    return arrRes.slice(0, 301);
+    return arrRes;
   }
 </script>
 </html>
