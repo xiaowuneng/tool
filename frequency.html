@@ -207,7 +207,7 @@
     arr.sort(function (a, b) {
       return b[1] - a[1];
     })
-    var indexLast = 0; // 第三百项的出现频率最后出现的 索引
+    var indexLast = arr.length; // 第三百项的出现频率最后出现的 索引
     for(var i = arr.length -1; i >= 0; i--) {
       if(arr[i][1] === arr[299][1]) {
         indexLast = i;
