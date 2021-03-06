@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>频率排序</title>
+  <title>截取独有</title>
   <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="./css/index.css">
 </head>
@@ -11,10 +11,11 @@
     <a href="./index.html" class="btn">数据取交集</a>
     <a href="./de-weighting.html" class="btn">数据去重</a>
     <a href="./intercept.html" class="btn">基因截取</a>
-    <a href="./frequency.html" class="btn active">频率排序</a>
-    <a href="./exclusive.html" class="btn">截取独有</a>
+    <a href="./frequency.html" class="btn">频率排序</a>
+    <a href="./exclusive.html" class="btn active">截取独有</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+  <input type="text" id="baseSheetName" style="padding: 2px;">
   <a href="javascript:selectFile()">加载excel文件</a>
   <input type="button" onclick="exportExcel()" value="导出"/>
   <p id="dataName">
@@ -22,7 +23,7 @@
     <span class="file-name"></span>
   </p>
   <p id="res">
-    <span>按出现频率截取数据有：</span>
+    <span><span id="sheet"></span>独有数据有：</span>
     <span class="num"></span>
   </p>
   <!-- <div id="result" contenteditable></div> -->
@@ -38,9 +39,19 @@
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./js/xlsx.full.min.js"></script>
+<!-- <script src="./Gene2.js"></script> -->
+<!-- <script src="./mutation_genes2.js"></script> -->
 <script>
   var resultData = "";
+  let baseSheetName = ''
+  let baseData = [] // 需要截取的数据
   function selectFile() {
+    baseSheetName = document.getElementById("baseSheetName").value
+    if(!baseSheetName.trim()){
+      alert("请先输入基准数据表格名称")
+      return
+    }
+    document.getElementById('sheet').innerText = baseSheetName
     document.getElementById('file').click();
   }
 
@@ -73,9 +84,19 @@
 
   function readWorkbook(workbook) {
     var sheetNames = workbook.SheetNames; // 工作表名称集合
-    var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
-    var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
-    resultData = frequency(csv1)
+    const arr = []
+    baseData = XLSX.utils.sheet_to_csv(workbook.Sheets[baseSheetName]).split('\n')
+    sheetNames.forEach(item => {
+      if(Object.keys(workbook.Sheets[item]).length !== 1) {
+        arr.push(XLSX.utils.sheet_to_csv(workbook.Sheets[item]).split('\n'))
+      }
+    })
+
+    // var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+    // var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
+    // var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
+    // var csv2 = XLSX.utils.sheet_to_csv(worksheet2).split('\n');
+    resultData = intersection(arr)
     // document.getElementById('result').innerHTML = csv2table(res);
   }
 
@@ -83,7 +104,7 @@
     // var csv = table2csv($('#result table')[0]);
     var sheet = csv2sheet(resultData);
     var blob = sheet2blob(sheet);
-    openDownloadDialog(blob, 'frequency.xlsx');
+    openDownloadDialog(blob, 'intersections.xlsx');
   }
 
     // 将csv转换成表格
@@ -128,7 +149,7 @@
   // csv转sheet对象
   function csv2sheet(csv) {
     var sheet = {}; // 将要生成的sheet
-    // csv = csv.split('\n');
+    csv = csv.split('\n');
     csv.forEach(function(row, i) {
       row = row.split(',');
       if(i == 0) sheet['!ref'] = 'A1:'+String.fromCharCode(65+row.length-1)+(csv.length-1);
@@ -188,38 +209,37 @@
     aLink.dispatchEvent(event);
   }
 
-  function frequency (dataA) {
-    $("#res .num").text("计算中，稍安勿躁...");
-    var tempObj = {};
-    dataA.forEach(function (value, index) {
-      if(value && value !== ",") {
-        if(tempObj[value]) {
-          tempObj[value]++;
-        } else {
-          tempObj[value] = 1;
-        }
-      }
-    });
-    var arr = [];
-    var arrRes = [];
-    for (var key in tempObj) {
-      arr.push([key, tempObj[key]]);
-    }
-    arr.sort(function (a, b) {
-      return b[1] - a[1];
+  function intersection (arr) {
+    let a = arr.reduce((data,item)=>{
+      return data.filter((i)=>{
+        return item.some((j)=>{
+          return i === j
+        })
+      })
     })
-    var indexLast = arr.length; // 第三百项的出现频率最后出现的 索引
-    for(var i = arr.length -1; i >= 0; i--) {
-      if(arr[i][1] === arr[299][1]) {
-        indexLast = i;
-        break;
+    let c = []
+    baseData.forEach(value => {
+      let index = a.findIndex((item) => {
+        return item === value
+      })
+      if(index < 0) {
+        c.push(value)
       }
-    }
-    arr.slice(0, indexLast + 2).forEach(function (value, index) {
-      arrRes.push(value[0] + value[1]);
     })
-    $("#res .num").text("已完成，可点击上方导出按钮⬆下载结果");
-    return arrRes;
+    $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
+    var str = "";
+    for (var i = 0; i < c.length; i++) {
+      str += c[i] + "\n";
+    }
+    return str;
   }
+  // 先去重，再过滤
+  // var c = Array.from(new Set(b)).filter(v => Array.from(new Set(a)).includes(v))
+  // console.log(c)
+  // var str = "";
+  // for (var i = 0; i < c.length; i++) {
+  //   str += "<div>" + c[i] + "</div>";
+  // }
+  // document.body.innerHTML = str
 </script>
 </html>

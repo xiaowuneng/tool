@@ -12,6 +12,7 @@
     <a href="./de-weighting.html" class="btn">数据去重</a>
     <a href="./intercept.html" class="btn">基因截取</a>
     <a href="./frequency.html" class="btn">频率排序</a>
+    <a href="./exclusive.html" class="btn">截取独有</a>
   </div>
   <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
   <a href="javascript:selectFile()">加载excel文件</a>
@@ -206,8 +207,6 @@
         })
       })
     })
-    debugger
-
     $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
     var str = "";
     for (var i = 0; i < c.length; i++) {
