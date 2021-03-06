@@ -87,7 +87,7 @@
     const arr = []
     baseData = XLSX.utils.sheet_to_csv(workbook.Sheets[baseSheetName]).split('\n')
     sheetNames.forEach(item => {
-      if(Object.keys(workbook.Sheets[item]).length !== 1) {
+      if(Object.keys(workbook.Sheets[item]).length !== 1 && item !== baseSheetName) {
         arr.push(XLSX.utils.sheet_to_csv(workbook.Sheets[item]).split('\n'))
       }
     })
@@ -210,21 +210,30 @@
   }
 
   function intersection (arr) {
-    let a = arr.reduce((data,item)=>{
+    /**
+     * 1 基础sheet表 与其他sheet表数据交集取反
+     * 2 取反后的数组，再取交集
+    */
+    let tempArr = []
+    arr.forEach(sheetData => {
+      let array = []
+      baseData.forEach(value => {
+        let index = sheetData.findIndex((item) => {
+          return item === value
+        })
+        if(index < 0) {
+          array.push(value)
+        }
+      })
+      tempArr.push(array)
+    })
+    
+    let c = tempArr.reduce((data,item)=>{
       return data.filter((i)=>{
         return item.some((j)=>{
           return i === j
         })
       })
-    })
-    let c = []
-    baseData.forEach(value => {
-      let index = a.findIndex((item) => {
-        return item === value
-      })
-      if(index < 0) {
-        c.push(value)
-      }
     })
     $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
     var str = "";
