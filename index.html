@@ -74,11 +74,18 @@
 
   function readWorkbook(workbook) {
     var sheetNames = workbook.SheetNames; // 工作表名称集合
-    var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
-    var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
-    var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
-    var csv2 = XLSX.utils.sheet_to_csv(worksheet2).split('\n');
-    resultData = intersection(csv1, csv2)
+    const arr = []
+    sheetNames.forEach(item => {
+      if(Object.keys(workbook.Sheets[item]).length !== 1) {
+        arr.push(XLSX.utils.sheet_to_csv(workbook.Sheets[item]).split('\n'))
+      }
+    })
+
+    // var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
+    // var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
+    // var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
+    // var csv2 = XLSX.utils.sheet_to_csv(worksheet2).split('\n');
+    resultData = intersection(arr)
     // document.getElementById('result').innerHTML = csv2table(res);
   }
 
@@ -191,8 +198,16 @@
     aLink.dispatchEvent(event);
   }
 
-  function intersection (dataA, dataB) {
-    var c = Array.from(new Set(dataA)).filter(v => Array.from(new Set(dataB)).includes(v))
+  function intersection (arr) {
+    let c = arr.reduce((data,item)=>{
+      return data.filter((i)=>{
+        return item.some((j)=>{
+          return i === j
+        })
+      })
+    })
+    debugger
+
     $("#res .num").text((c.length - 1) + "条，可点击上方导出按钮⬆下载结果");
     var str = "";
     for (var i = 0; i < c.length; i++) {
