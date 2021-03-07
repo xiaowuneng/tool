@@ -231,7 +231,7 @@
     let c = tempArr.reduce((data,item)=>{
       return data.filter((i)=>{
         return item.some((j)=>{
-          return i === j
+          return (i && j && i === j)
         })
       })
     })
