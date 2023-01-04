@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>财务报表处理</title>
+  <title>筛选文科才表表格</title>
   <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="./css/index.css">
 </head>
@@ -10,12 +10,19 @@
   <div class="btn-wrap">
     <a href="./index.html" class="btn active">财务数据提取</a>
   </div>
-  <input type="file" id="file" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-  <a href="javascript:selectFile()">加载excel文件</a>
-  <input type="button" onclick="exportExcel()" value="导出"/>
+  <div class=""wrapper>
+    <input type="file" id="file1" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+    <a href="javascript:selectFile(1)">加载excel文件1(财务表)</a>
+  </div>
+  <div class=""wrapper>
+    <input type="file" id="file2" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+    <a href="javascript:selectFile(2)">加载excel文件2(项目筛选表)</a>
+  </div>
+  <input type="button" onclick="exportExcel1()" value="导出结果"/>
   <p id="dataName">
     <span>数据源文件名：</span>
-    <span class="file-name"></span>
+    <span class="file1-name"></span> / 
+    <span class="file2-name"></span>
   </p>
   <p id="res" style="color: red; font-weight: 700;">
     <!-- <span>重复数据有：</span> -->
@@ -28,30 +35,10 @@
     <div class="img-wrap">
       <!-- <img src="./images/code.png" width="166" alt="收款码"> -->
       <!-- <img src="./images/IMG_1477.JPG" width="200" alt="冰阔落~" class="cola"> -->
-      <!-- <img src="./images/cat.jpg" width="166" alt="cat~" class="cat"> -->
+      <img src="./images/cat.jpg" width="166" alt="cat~" class="cat">
     </div>
   </div>
-  <hr style="margin: 30px;">
-  <!-- <div id="tableWrapper"></div> -->
-  <div>
-    <input type="file" id="file1" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-    <a href="javascript:selectFile1()">加载财务总表文件</a>
-    <p id="file1name">
-      <span>数据源文件名：</span>
-      <span class="file-name"></span>
-    </p>
-  </div>
-  <div>
-    <input type="file" id="file2" style="display:none;" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-    <a href="javascript:selectFile2()">加载项目列表文件</a>
-    <p id="file2name">
-      <span>数据源文件名：</span>
-      <span class="file-name"></span>
-    </p>
-  </div>
-  <input type="button" onclick="exportExcel1()" value="导出结果"/>
-  <p id="tips" style="display:none;color: red;font-size: 14px;">点击🔝按钮导出结果</p>
-
+  <div id="tableWrapper"></div>
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./js/lodash.core.min.js"></script>
@@ -60,62 +47,17 @@
 <!-- <script src="./Gene2.js"></script> -->
 <!-- <script src="./mutation_genes2.js"></script> -->
 <script>
-  var resultData = "";
+  let resultData = "";
   let SHEET1_DATA = null;
   let SHEET2_DATA = null;
-  const targetTableHeader = [
-      "id",
-      "项目名称",
-      "负责人姓名",
-      "批准日期",
-      "上年结转经费",
-      "当年拨入经费",
-      "当年支出经费",
-      "转拨给外单位经费",
-      "对国内研究机构支出",
-      "对国内高等学校支出",
-      "对国内企业支出",
-      "对境外机构支出",
-      "内部支出经费合计",
-      "业务费",
-      "仪器设备费",
-      "单价在1万元以上的设备费",
-      "图书资料费",
-      "间接费",
-      "管理费",
-      "其他支出",
-      "当年结余经费",
-      "银行存款",
-      "暂付款"
-  ];
-  let targetTable = [targetTableHeader];
-  function selectFile() {
-    document.getElementById('file').click();
-  }
-  function selectFile1() {
-    document.getElementById('file1').click();
-  }
-  function selectFile2() {
-    document.getElementById('file2').click();
+  function selectFile(num) {
+    document.getElementById(`file${num}`).click();
   }
 
   $(function() {
-    document.getElementById('file').addEventListener('change', function(e) {
-      var files = e.target.files;
-      $("#dataName .file-name").text(files[0].name)
-      if(files.length == 0) return;
-      var f = files[0];
-      if(!/\.xlsx$/g.test(f.name)) {
-        alert('仅支持读取xlsx格式！');
-        return;
-      }
-      readWorkbookFromLocalFile(f, function(workbook) {
-        readWorkbook(workbook);
-      });
-    });
     document.getElementById('file1').addEventListener('change', function(e) {
       var files = e.target.files;
-      $("#file1name .file-name").text(files[0].name)
+      $("#dataName .file1-name").text(files[0].name)
       if(files.length == 0) return;
       var f = files[0];
       if(!/\.xlsx$/g.test(f.name)) {
@@ -123,12 +65,15 @@
         return;
       }
       readWorkbookFromLocalFile(f, function(workbook) {
-        readWorkbook1(workbook);
+        var sheetNames = workbook.SheetNames; // 工作表名称集合
+        // debugger;
+        SHEET1_DATA = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[1]], { header: 1 });
+        // console.log(SHEET1_DATA)
       });
     });
     document.getElementById('file2').addEventListener('change', function(e) {
       var files = e.target.files;
-      $("#file2name .file-name").text(files[0].name)
+      $("#dataName .file2-name").text(files[0].name)
       if(files.length == 0) return;
       var f = files[0];
       if(!/\.xlsx$/g.test(f.name)) {
@@ -136,7 +81,9 @@
         return;
       }
       readWorkbookFromLocalFile(f, function(workbook) {
-        readWorkbook2(workbook);
+        var sheetNames = workbook.SheetNames; // 工作表名称集合
+        SHEET2_DATA = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[3]], { header: 1 });
+        // readWorkbook(workbook);
       });
     });
   });
@@ -157,82 +104,6 @@
     const arr = []
     // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { header: 1 }))
     resultData = dataProcessing(XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { header: 1 }))
-    // sheetNames.forEach(item => {
-    //   if(Object.keys(workbook.Sheets[item]).length !== 1) {
-    //     arr.push(XLSX.utils.sheet_to_csv(workbook.Sheets[item]).split('\n'))
-    //   }
-    // })
-    
-
-    // var worksheet1 = workbook.Sheets[sheetNames[0]]; // 这里我们只读取第一张sheet
-    // var worksheet2 = workbook.Sheets[sheetNames[1]]; // 这里我们只读取第一张sheet
-    // var csv1 = XLSX.utils.sheet_to_csv(worksheet1).split('\n');
-    // var csv2 = XLSX.utils.sheet_to_csv(worksheet2).split('\n');
-    // resultData = intersection(arr)
-    // document.getElementById('result').innerHTML = csv2table(res);
-  }
-  function readWorkbook1(workbook) {
-    var sheetNames = workbook.SheetNames; // 工作表名称集合
-    SHEET1_DATA = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { header: 1 });
-  }
-  function readWorkbook2(workbook) {
-    var sheetNames = workbook.SheetNames; // 工作表名称集合
-    SHEET2_DATA = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { header: 1 });
-  }
-
-  /**
-   * 
-   * */
-
-  function exportExcel1() {
-     /**
-     * 1 项目名称匹配
-     *  1.1 如果含有中文，只筛选出中文字符(忽略特殊字符)进行判断
-     *  1.2 如果不含中文，直接判断
-     * */
-     const temp = [];
-    
-    _.drop(SHEET2_DATA).forEach(project => {
-      const row = [];
-      const hasChineseChart = project[0].match(/[\u4e00-\u9fa5]/gm);
-      let matchRow = null;
-      if(hasChineseChart){
-        matchRow = SHEET1_DATA.find(item => {
-          if(item[4] && item[4].match(/[\u4e00-\u9fa5]/gm)) {
-            const a = hasChineseChart.join('');
-            const b = item[4].match(/[\u4e00-\u9fa5]/gm).join('');
-            return a.indexOf(b) >= 0 || b.indexOf(a) >= 0;
-          }
-        })
-      } else {
-        matchRow = SHEET1_DATA.find(item => {
-          if(item[4]) {
-            return project[0] === item[4]
-          }
-        })
-      }
-      // matchRow = SHEET1_DATA.find(item => {
-      //   if(item[4]) {
-      //     return project[0] === item[4]
-      //   }
-      // })
-      if(matchRow) {
-        row.push(matchRow[3],project[0], project[2], project[4])
-        targetTable.push(row)
-      } else {
-        temp.push(project[0])
-      }
-    })
-    // console.log(SHEET1_DATA)
-    console.log(targetTable)
-    console.log(temp)
-    // console.log(SHEET2_DATA)
-    return;
-    // 导出表格
-    var sheet = XLSX.utils.json_to_sheet (targetTable,{skipHeader:true});
-    var blob = sheet2blob(sheet);
-    openDownloadDialog(blob, 'research1.xlsx');
-
   }
 
   function dataProcessing(data) {
@@ -240,13 +111,13 @@
     let listObj = {}
     let listRes = []
     data.forEach((item, index) => {
-      if(index > 4) {
+      // if(index > 4) {
         if(listObj[item[3]]) {
           listObj[item[3]].push(item)
         } else {
           listObj[item[3]] = [item]
         }
-      }
+      // }
     })
     // console.log(listObj)
     for(let key in listObj) {
@@ -273,7 +144,7 @@
       let item = listObj[key]
       if(item.length > 1) {
         for(let i = item.length - 1; i >= 0; i--) {
-          if(item[i].length > 13) {
+          if(_.last(item[i]) === false) {
             item.splice(i, 1);
           }
         }
@@ -281,11 +152,27 @@
       const arr = _.take(data,4)
       listRes.push(...item)
     }
-    $('#res').text('别愣着鸭，⬆导出看结果啊～')
-    return _.take(data,5).concat(listRes) ;
+    // $('#res').text('别愣着鸭，⬆导出看结果啊～')
+    return _.take(SHEET1_DATA,5).concat(listRes) ;
   }
-
-  function exportExcel() {
+  function dataProcessingType1() {
+    const list = []; 
+    let noList = [];
+// debugger;
+    SHEET1_DATA.forEach(row => {
+      const target = SHEET2_DATA.find(item => row[0] === item[1])
+      if(target) {
+        target.push(row[19]);
+        list.push(target)
+      }else {
+        noList.push(row[0])
+      }
+    })
+    console.log(noList)
+    resultData = list
+  }
+  function exportExcel1() {
+    dataProcessingType1();
     // var csv = table2csv($('#result table')[0]);
     // var sheet = csv2sheet(resultData);
     var sheet = XLSX.utils.json_to_sheet (resultData,{skipHeader:true});
